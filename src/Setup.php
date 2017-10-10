@@ -24,7 +24,7 @@ class Setup extends AS2
      */
     public function __construct()
     {
-        parent::__construct();
+        // parent::__construct();
     }
 
 /* Possible $dn values:
@@ -40,19 +40,19 @@ class Setup extends AS2
 */
 
     /**
-     * @param integer $size      Key size, eg 1024, 2048, 3072... or null for auto
-     * @param string  $crypt     Encryption to use (des3, aes128, ...)
-     * @param string  $algo      Algorithm to use (sha1, sha256, ...)
-     * @param string  $password  Your password for key and certificate
      * @param string  $path      Path where all the files should be placed
      * @param string  $filename  File name without extension
+     * @param integer $size      Key size, eg 1024, 2048, 3072... or null for auto
+     * @param string  $algo      Algorithm to use (sha1, sha256, ...)
+     * @param string  $password  Your password for key and certificate
      *
      * @throws Exception Password should have 6 characters or more
-     * @throws Exception Error creating private key
+     * @throws Exception Error creating keys
+     * @throws Exception Error writing to file
      *
      * @return Boolean Success
      */
-    public function generateCertificate($size = 1024, $crypt = 'des3', $algo = 'sha1', $password = false, $path, $filename, $dn = [])
+    public function generateCertificate($path, $filename, $size = 1024, $algo = 'sha1', $password = false, $dn = [])
     {
         $outfile = rtrim($path, '\\/') . DIRECTORY_SEPARATOR . $filename;
 
@@ -134,7 +134,37 @@ class Setup extends AS2
             $x509->setDomain($dn['_D']);
         }
 
-        $csr = $x509->signCSR();
+        $algo = strtolower($algo);
+
+        if ($algo === 'sha1') {
+            $signatureAlgorithm = 'sha1WithRSAEncryption';
+        }
+
+        if (in_array($algo, ['sha2', 'sha256'], true)) {
+            $signatureAlgorithm = 'sha256WithRSAEncryption';
+        }
+
+        if ($algo === 'sha224') {
+            $signatureAlgorithm = 'sha224WithRSAEncryption';
+        }
+ 
+        if ($algo === 'sha384') {
+            $signatureAlgorithm = 'sha384WithRSAEncryption';
+        }
+
+        if ($algo === 'sha512') {
+            $signatureAlgorithm = 'sha512WithRSAEncryption';
+        }
+
+        if ($algo === 'md2') {
+            $signatureAlgorithm = 'md2WithRSAEncryption';
+        }
+
+        if ($algo === 'md5') {
+            $signatureAlgorithm = 'md5WithRSAEncryption';
+        }
+
+        $csr = $x509->signCSR($signatureAlgorithm);
         $outCSR = $x509->saveCSR($csr);
         $bytes = file_put_contents($outfile . '.csr', $outCSR, LOCK_EX);
         if ($bytes === false || $bytes < 2) {
@@ -148,13 +178,18 @@ class Setup extends AS2
         $subject->setPublicKey($pubKey);
 
         $issuer = new PslX509();
-        $issuer->setPrivateKey($privKey);
         $issuer->setDN($x509->getDN());
+        $issuer->setPrivateKey($privKey);
 
         $cert = new PslX509();
-        $result = $cert->sign($issuer, $x509);
-        echo $cert->saveX509($result);
+        $result = $cert->sign($issuer, $subject);
+        $bytes = file_put_contents($outfile . '.crt', $cert->saveX509($result), LOCK_EX);
+        if ($bytes === false || $bytes < 2) {
+            $message = parent::log(__CLASS__, 'Error writing certificate to "' . $outfile . '.crt"');
+            throw new Exception($message);
+        }
 
+        return true;
     }
 
 
