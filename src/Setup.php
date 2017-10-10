@@ -164,6 +164,14 @@ class Setup extends AS2
             $signatureAlgorithm = 'md5WithRSAEncryption';
         }
 
+        $csr = $x509->signCSR($signatureAlgorithm);
+        $outCSR = $x509->saveCSR($csr);
+        $bytes = file_put_contents($outfile . '.csr', $outCSR, LOCK_EX);
+        if ($bytes === false || $bytes < 2) {
+            $message = parent::log(__CLASS__, 'Error writing CSR to "' . $outfile . '.csr"');
+            throw new Exception($message);
+        }
+
         // create self-signed certificate
         $subject = new PslX509();
         $subject->setDN($x509->getDN());
@@ -174,31 +182,17 @@ class Setup extends AS2
         $issuer->setPrivateKey($privKey);
 
         $cert = new PslX509();
+        $cert->setEndDate('+10 years');
 
-        // $cert->setEndDate();
+        $result = $cert->sign($issuer, $subject, $signatureAlgorithm);
 
-        $csr = $cert->signCSR($signatureAlgorithm);
-
-
-        $outCSR = $x509->saveCSR($csr);
-        $bytes = file_put_contents($outfile . '.csr', $outCSR, LOCK_EX);
-        if ($bytes === false || $bytes < 2) {
-            $message = parent::log(__CLASS__, 'Error writing CSR to "' . $outfile . '.csr"');
-            throw new Exception($message);
-        }
-
-
-        $result = $cert->sign($issuer, $subject);
         $bytes = file_put_contents($outfile . '.crt', $cert->saveX509($result), LOCK_EX);
         if ($bytes === false || $bytes < 2) {
             $message = parent::log(__CLASS__, 'Error writing certificate to "' . $outfile . '.crt"');
             throw new Exception($message);
         }
 
-
-
         return true;
     }
-
 
 }
