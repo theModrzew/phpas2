@@ -1,6 +1,6 @@
 <?php
 /**
- *
+ * Helps with quick setup - for development purposes!
  *
  */
 
@@ -54,6 +54,7 @@ class Setup extends AS2
      */
     public function generateCertificate($path, $filename, $size = 1024, $algo = 'sha1', $password = false, $dn = [])
     {
+        $algo = strtolower($algo);
         $outfile = rtrim($path, '\\/') . DIRECTORY_SEPARATOR . $filename;
 
         // @TODO: check for path / file problems!
@@ -72,6 +73,31 @@ class Setup extends AS2
 
         if ($password !== false) {
             $rsa->setPassword($password);
+        }
+
+        if (!is_numeric($size)) {
+            switch ($algo):
+
+                case 'sha2':
+                case 'sha224':
+                case 'sha256':
+                    $size = 2048;
+                    break;
+
+                case 'sha384':
+                    $size = 3072;
+                    break;
+
+                case 'sha512':
+                    $size = 4096;
+                    break;
+
+                default:
+                    // md*, sha1, unknown
+                    $size = 1024;
+                    break;
+
+            endswitch;
         }
 
         $result = $privKey->createKey($size);
@@ -98,6 +124,7 @@ class Setup extends AS2
         $bytes = file_put_contents($outfile . '.private.key', $result['privatekey'], LOCK_EX);
         if ($bytes === false || $bytes < 2) {
             $message = parent::log(__CLASS__, 'Error writing private key to "' . $outfile . '.private.key"');
+            @unlink($outfile . '.key');
             throw new Exception($message);
         }
 
@@ -134,8 +161,6 @@ class Setup extends AS2
             $x509->setDomain($dn['_D']);
         }
 
-        $algo = strtolower($algo);
-
         if ($algo === 'sha1') {
             $signatureAlgorithm = 'sha1WithRSAEncryption';
         }
@@ -169,6 +194,8 @@ class Setup extends AS2
         $bytes = file_put_contents($outfile . '.csr', $outCSR, LOCK_EX);
         if ($bytes === false || $bytes < 2) {
             $message = parent::log(__CLASS__, 'Error writing CSR to "' . $outfile . '.csr"');
+            @unlink($outfile . '.private.key');
+            @unlink($outfile . '.key');
             throw new Exception($message);
         }
 
@@ -189,6 +216,9 @@ class Setup extends AS2
         $bytes = file_put_contents($outfile . '.crt', $cert->saveX509($result), LOCK_EX);
         if ($bytes === false || $bytes < 2) {
             $message = parent::log(__CLASS__, 'Error writing certificate to "' . $outfile . '.crt"');
+            @unlink($outfile . '.csr');
+            @unlink($outfile . '.private.key');
+            @unlink($outfile . '.key');
             throw new Exception($message);
         }
 
