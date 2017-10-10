@@ -27,20 +27,32 @@ class Setup extends AS2
         parent::__construct();
     }
 
+/* Possible $dn values:
+    'C'    // Country
+    'ST'   // State or Province name
+    'L'    // Locality name
+    'PC'   // Postal Code / zip code
+    'O'    // Organization name
+    'OU'   // Organizational Unit name
+    'CN'   // Common Name
+    'MAIL' // Email address
+    '_D'   // Domain that certificate is valid with
+*/
+
     /**
-     * @param Int    $size      Key size, eg 1024, 2048, 3072... or null for auto
-     * @param string $crypt     Encryption to use (des3, aes128, ...)
-     * @param string $algo      Algorithm to use (sha1, sha256, ...)
-     * @param string $password  Your password for key and certificate
-     * @param string $path      Path where all the files should be placed
-     * @param string $filename  File name wothout extension
+     * @param integer $size      Key size, eg 1024, 2048, 3072... or null for auto
+     * @param string  $crypt     Encryption to use (des3, aes128, ...)
+     * @param string  $algo      Algorithm to use (sha1, sha256, ...)
+     * @param string  $password  Your password for key and certificate
+     * @param string  $path      Path where all the files should be placed
+     * @param string  $filename  File name without extension
      *
      * @throws Exception Password should have 6 characters or more
      * @throws Exception Error creating private key
      *
      * @return Boolean Success
      */
-    public function generateCertificate($size = 1024, $crypt, $algo, $password = false, $path, $filename)
+    public function generateCertificate($size = 1024, $crypt = 'des3', $algo = 'sha1', $password = false, $path, $filename, $dn = [])
     {
         $outfile = rtrim($path, '\\/') . DIRECTORY_SEPARATOR . $filename;
 
@@ -85,25 +97,65 @@ class Setup extends AS2
         // save private key to a file
         $bytes = file_put_contents($outfile . '.private.key', $result['privatekey'], LOCK_EX);
         if ($bytes === false || $bytes < 2) {
-            $message = parent::log(__CLASS__, 'Error writing private key to "' . $outfile . '.key"');
+            $message = parent::log(__CLASS__, 'Error writing private key to "' . $outfile . '.private.key"');
             throw new Exception($message);
         }
 
         // generate CSR
         $x509 = new PslX509();
         $x509->setPrivateKey($privKey);
-        $x509->setDNProp('TODO', 'TODO');
+
+        if (!empty($dn['C'])) {
+            $x509->setDNProp('id-at-countryName', $dn['C']);
+        }
+        if (!empty($dn['ST'])) {
+            $x509->setDNProp('id-at-stateOrProvinceName', $dn['ST']);
+        }
+        if (!empty($dn['L'])) {
+            $x509->setDNProp('id-at-localityName', $dn['L']);
+        }
+        if (!empty($dn['PC'])) {
+            $x509->setDNProp('id-at-postalCode', $dn['PC']);
+        }
+        if (!empty($dn['O'])) {
+            $x509->setDNProp('id-at-organizationName', $dn['O']);
+        }
+        if (!empty($dn['OU'])) {
+            $x509->setDNProp('id-at-organizationalUnitName', $dn['OU']);
+        }
+        if (!empty($dn['CN'])) {
+            $x509->setDNProp('id-at-commonName', $dn['CN']);
+        }
+        if (!empty($dn['MAIL'])) {
+            $x509->setDNProp('id-emailAddress', $dn['MAIL']);
+        }
+
+        if (!empty($dn['_D'])) {
+            $x509->setDomain($dn['_D']);
+        }
+
         $csr = $x509->signCSR();
-        $bytes = file_put_contents($outfile . '.csr', $x509->saveCSR($csr), LOCK_EX);
+        $outCSR = $x509->saveCSR($csr);
+        $bytes = file_put_contents($outfile . '.csr', $outCSR, LOCK_EX);
         if ($bytes === false || $bytes < 2) {
             $message = parent::log(__CLASS__, 'Error writing CSR to "' . $outfile . '.csr"');
             throw new Exception($message);
         }
 
         // create self-signed certificate
+        $subject = new PslX509();
+        $subject->setDN($x509->getDN());
+        $subject->setPublicKey($pubKey);
 
+        $issuer = new PslX509();
+        $issuer->setPrivateKey($privKey);
+        $issuer->setDN($x509->getDN());
 
+        $cert = new PslX509();
+        $result = $cert->sign($issuer, $x509);
+        echo $cert->saveX509($result);
 
     }
+
 
 }
