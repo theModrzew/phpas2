@@ -1,33 +1,42 @@
 <?php
 /**
- * This file contains definionions under PhpAS2 namespace
  *
- * Only most popular cipher types are provided here
  */
 
 namespace PhpAS2;
 
+class Definitions
+{
+
+}
+
+
+
+
 /*
  * MDN types
- */
+
+
+define (__NAMESPACE__ . '\CPR_3DES', '3des', true);
+
 const MDN_SYNC  = 0;
 const MDN_ASYNC = 1;
 const MDN_SMTP  = 2;
 
 /*
  * Algorithms
- */
+
 const ALG_SHA1    = 'sha1';
 const ALG_SHA2    = 'sha2';
 const ALG_SHA256  = 'sha256';
 
 /*
  * Cipher methods
- */
+
 
 // Data Encryption Standard
 const CPR_DES     = 'des';
-const CPR_3DES    = '3des';
+#const CPR_3DES    = '3des';
 
 // Advanced Encryption Standard
 const CPR_AES128  = 'aes128';

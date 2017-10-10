@@ -27,13 +27,9 @@ class AS2
     private $partners = [];
 
     /**
-     * @var string OpenSSL shell command
+     * @var string[] Debug messages
      */
-    private $oSslCmd;
-    /**
-     * @var string OpenSSL version
-     */
-    private $oSslVer;
+    private $debug = [];
 
     /**
      *
@@ -124,11 +120,11 @@ class AS2
 
 
     /**
-     * We want to return something...
+     * Return something...
      */
     public function __toString()
     {
-        return 'AS2';
+        return implode("\n", $this->debug);
     }
 
     public function __clone()

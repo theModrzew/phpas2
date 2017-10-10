@@ -8,9 +8,8 @@ namespace PhpAS2;
 
 use Exception;
 
-use Definitions;
-
-#use phpseclib\Crypt\RSA;
+use phpseclib\File\X509 as X509;
+use phpseclib\Crypt\RSA as PslCryptRSA;
 
 /**
  *
@@ -47,6 +46,14 @@ class Setup extends AS2
         if (empty($password) || strlen(trim($password)) < 6) {
             throw new Exception('Password should have 6 characters or more');
         }
+
+        $privKey = new PslCryptRSA();
+        $x = $privKey->createKey();
+
+        var_dump($x);
+
+        $privKey->loadKey($privatekey);
+
 
     }
 
