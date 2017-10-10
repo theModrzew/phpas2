@@ -8,7 +8,7 @@ namespace PhpAS2;
 
 use Exception;
 
-use phpseclib\File\X509 as X509;
+use phpseclib\File\X509 as PslX509;
 use phpseclib\Crypt\RSA as PslCryptRSA;
 
 /**
@@ -42,6 +42,9 @@ class Setup extends AS2
      */
     public function generateCertificate($size = 1024, $crypt, $algo, $password = false, $path, $filename)
     {
+        $outfile = rtrim($path, '\\/') . DIRECTORY_SEPARATOR . $filename;
+
+        // @TODO: check for path / file problems!
 
         if ($password !== false) {
             if (empty($password) || strlen(trim($password)) < 6) {
@@ -53,9 +56,14 @@ class Setup extends AS2
         }
 
         // create private and public keys
-
         $privKey = new PslCryptRSA();
+
+        if ($password !== false) {
+            $rsa->setPassword($password);
+        }
+
         $result = $privKey->createKey($size);
+
         // make sure key was generated
         if (!isset($result['partialkey']) || $result['partialkey'] !== false) {
             $message = parent::log(__CLASS__, 'Error creating RSA keys');
@@ -67,7 +75,33 @@ class Setup extends AS2
         $pubKey->loadKey($result['publickey']);
         $pubKey->setPublicKey();
 
+        // save public key to a file
+        $bytes = file_put_contents($outfile . '.key', $result['publickey'], LOCK_EX);
+        if ($bytes === false || $bytes < 2) {
+            $message = parent::log(__CLASS__, 'Error writing public key to "' . $outfile . '.key"');
+            throw new Exception($message);
+        }
+
+        // save private key to a file
+        $bytes = file_put_contents($outfile . '.private.key', $result['privatekey'], LOCK_EX);
+        if ($bytes === false || $bytes < 2) {
+            $message = parent::log(__CLASS__, 'Error writing private key to "' . $outfile . '.key"');
+            throw new Exception($message);
+        }
+
+        // generate CSR
+        $x509 = new PslX509();
+        $x509->setPrivateKey($privKey);
+        $x509->setDNProp('TODO', 'TODO');
+        $csr = $x509->signCSR();
+        $bytes = file_put_contents($outfile . '.csr', $x509->saveCSR($csr), LOCK_EX);
+        if ($bytes === false || $bytes < 2) {
+            $message = parent::log(__CLASS__, 'Error writing CSR to "' . $outfile . '.csr"');
+            throw new Exception($message);
+        }
+
         // create self-signed certificate
+
 
 
     }
