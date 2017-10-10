@@ -140,14 +140,14 @@ class Setup extends AS2
             $signatureAlgorithm = 'sha1WithRSAEncryption';
         }
 
-        if (in_array($algo, ['sha2', 'sha256'], true)) {
-            $signatureAlgorithm = 'sha256WithRSAEncryption';
-        }
-
         if ($algo === 'sha224') {
             $signatureAlgorithm = 'sha224WithRSAEncryption';
         }
- 
+
+        if ($algo === 'sha256' || $algo === 'sha2') {
+            $signatureAlgorithm = 'sha256WithRSAEncryption';
+        }
+
         if ($algo === 'sha384') {
             $signatureAlgorithm = 'sha384WithRSAEncryption';
         }
@@ -164,14 +164,6 @@ class Setup extends AS2
             $signatureAlgorithm = 'md5WithRSAEncryption';
         }
 
-        $csr = $x509->signCSR($signatureAlgorithm);
-        $outCSR = $x509->saveCSR($csr);
-        $bytes = file_put_contents($outfile . '.csr', $outCSR, LOCK_EX);
-        if ($bytes === false || $bytes < 2) {
-            $message = parent::log(__CLASS__, 'Error writing CSR to "' . $outfile . '.csr"');
-            throw new Exception($message);
-        }
-
         // create self-signed certificate
         $subject = new PslX509();
         $subject->setDN($x509->getDN());
@@ -182,12 +174,28 @@ class Setup extends AS2
         $issuer->setPrivateKey($privKey);
 
         $cert = new PslX509();
+
+        // $cert->setEndDate();
+
+        $csr = $cert->signCSR($signatureAlgorithm);
+
+
+        $outCSR = $x509->saveCSR($csr);
+        $bytes = file_put_contents($outfile . '.csr', $outCSR, LOCK_EX);
+        if ($bytes === false || $bytes < 2) {
+            $message = parent::log(__CLASS__, 'Error writing CSR to "' . $outfile . '.csr"');
+            throw new Exception($message);
+        }
+
+
         $result = $cert->sign($issuer, $subject);
         $bytes = file_put_contents($outfile . '.crt', $cert->saveX509($result), LOCK_EX);
         if ($bytes === false || $bytes < 2) {
             $message = parent::log(__CLASS__, 'Error writing certificate to "' . $outfile . '.crt"');
             throw new Exception($message);
         }
+
+
 
         return true;
     }
