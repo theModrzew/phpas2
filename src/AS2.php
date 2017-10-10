@@ -129,8 +129,7 @@ class AS2
 
 
     protected function log($class = null, $line) {
-        $this->debugInfo[] = !is_null($class) ? :
-            '[' . $class . ']' .
+        $this->debugInfo[] = (!is_null($class) ? '[' . $class . ']' : '') .
             str_replace("\n", ' ', $line);
 
         return $line;
