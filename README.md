@@ -1,10 +1,11 @@
-# pureAS2
+# phpas2
 
-When I was a little foo then I bar about baz
+Attempt to create library to handle AS protocol with help of phpseclib version 2.
+You can [find phpseclib here](https://github.com/phpseclib)
 
 ## Installation
 
-`composer require blin`
+`composer require themodrzew/phpas2`
 
 ## Quick setup
 
