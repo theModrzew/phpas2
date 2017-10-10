@@ -26,6 +26,7 @@ final class Partner
     private $mdnPassword;
 
     // Security
+    private $haveCACert;
     private $pkcs12;
     private $pkcs12Passwd;
     private $certificate;

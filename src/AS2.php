@@ -29,7 +29,7 @@ class AS2
     /**
      * @var string[] Debug messages
      */
-    private $debug = [];
+    private $debugInfo = [];
 
     /**
      *
@@ -41,6 +41,13 @@ class AS2
         }
 
 
+    }
+
+    public function __destruct()
+    {
+        echo '<pre>';
+        print_r($this->debugInfo);
+        echo '</pre>';
     }
 
     /**
@@ -115,6 +122,19 @@ class AS2
         return false;
     }
 
+
+
+
+
+
+
+    protected function log($class = null, $line) {
+        $this->debugInfo[] = !is_null($class) ? :
+            '[' . $class . ']' .
+            str_replace("\n", ' ', $line);
+
+        return $line;
+    }
 
 
 

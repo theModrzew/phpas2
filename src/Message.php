@@ -32,7 +32,7 @@ class Message
 
     public function validateCerts()
     {
-                $x509 = new X509();
+        $x509 = new X509();
 
         $x = file_get_contents('/vagrant/phpas2/them.cer');
 
@@ -70,8 +70,8 @@ class Message
         // encrypt
 
         if ($openSSLCompat === true) {
-            if (!defined('CRYPT_RSA_PKCS15_COMPAT')) {
-                define('CRYPT_RSA_PKCS15_COMPAT', true);
+            if (!defined('\CRYPT_RSA_PKCS15_COMPAT')) {
+                define('\CRYPT_RSA_PKCS15_COMPAT', true);
             }
         }
 

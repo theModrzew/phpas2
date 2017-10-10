@@ -40,19 +40,34 @@ class Setup extends AS2
      *
      * @return Boolean Success
      */
-    public function generateCertificate($size, $crypt, $algo, $password, $path, $filename)
+    public function generateCertificate($size = 1024, $crypt, $algo, $password = false, $path, $filename)
     {
 
-        if (empty($password) || strlen(trim($password)) < 6) {
-            throw new Exception('Password should have 6 characters or more');
+        if ($password !== false) {
+            if (empty($password) || strlen(trim($password)) < 6) {
+                $message = parent::log(__CLASS__, 'Password must have 6 characters or more');
+                throw new Exception($message);
+            }
+        } else {
+            parent::log(__CLASS__, 'Creating keys with no password');
         }
 
+        // create private and public keys
+
         $privKey = new PslCryptRSA();
-        $x = $privKey->createKey();
+        $result = $privKey->createKey($size);
+        // make sure key was generated
+        if (!isset($result['partialkey']) || $result['partialkey'] !== false) {
+            $message = parent::log(__CLASS__, 'Error creating RSA keys');
+            throw new Exception($message);
+        }
+        $privKey->loadKey($result['privatekey']);
 
-        var_dump($x);
+        $pubKey = new PslCryptRSA();
+        $pubKey->loadKey($result['publickey']);
+        $pubKey->setPublicKey();
 
-        $privKey->loadKey($privatekey);
+        // create self-signed certificate
 
 
     }
