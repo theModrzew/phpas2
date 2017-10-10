@@ -1,0 +1,25 @@
+{
+    "name": "themodrzew/phpas2",
+    "description": "PHPAS2",
+    "type": "library",
+    "license": "MIT",
+    "keywords": ["php", "as2", "b2b", "edi", "edifact"],
+    "authors": [
+        {
+            "name": "theModrzew",
+            "email": "mniejwiecej@wp.pl",
+            "role": "inquisitor"
+        }
+    ],
+    "require": {
+        "php": ">=5.4.0",
+        "phpseclib/phpseclib": "~2.0"
+    },
+    "require-dev": {
+    },
+    "autoload": {
+        "psr-4": {
+            "PhpAS2\\": "src/"
+        }
+    }
+}
