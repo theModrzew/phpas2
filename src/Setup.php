@@ -4,7 +4,7 @@
  *
  */
 
-namespace pureAS2;
+namespace PhpAS2;
 
 use Exception;
 
@@ -14,7 +14,7 @@ use Definitions;
 
 /**
  *
- * @package  pureAS2/Setup
+ * @package  PhpAS2/Setup
  * @access   public
  */
 class Setup extends AS2

@@ -1,11 +1,11 @@
 <?php
 /**
- * This file contains definionions under pureAS2 namespace
+ * This file contains definionions under PhpAS2 namespace
  *
  * Only most popular cipher types are provided here
  */
 
-namespace pureAS2;
+namespace PhpAS2;
 
 /*
  * MDN types

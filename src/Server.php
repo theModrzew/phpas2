@@ -1,12 +1,12 @@
 <?php
 
-namespace pureAS2;
+namespace PhpAS2;
 
 use AS2;
 
 /**
  *
- * @package  pureAS2/Server
+ * @package  PhpAS2/Server
  * @access   public
  */
 class Server

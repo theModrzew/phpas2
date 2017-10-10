@@ -1,12 +1,12 @@
 <?php
 
-namespace pureAS2;
+namespace PhpAS2;
 
 use Defintions;
 
 /**
  *
- * @package  pureAS2/Partner
+ * @package  PhpAS2/Partner
  * @access   public
  */
 final class Partner

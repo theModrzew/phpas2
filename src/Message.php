@@ -1,6 +1,6 @@
 <?php
 
-namespace pureAS2;
+namespace PhpAS2;
 
 use Defintions;
 
@@ -8,7 +8,7 @@ use phpseclib\Crypt\RSA;
 
 /**
  *
- * @package  pureAS2/Message
+ * @package  PhpAS2/Message
  * @access   public
  */
 class Message

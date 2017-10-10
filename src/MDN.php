@@ -4,13 +4,13 @@
  * RFC: "A MDN is a receipt."
  */
 
-namespace pureAS2;
+namespace PhpAS2;
 
 use Message;
 
 /**
  *
- * @package  pureAS2/MDN
+ * @package  PhpAS2/MDN
  * @access   public
  */
 class MDN extends Message

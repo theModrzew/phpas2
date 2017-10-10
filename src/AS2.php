@@ -7,7 +7,7 @@
  * @see http://www.rfc-base.org/txt/rfc-4130.txt
  */
 
-namespace pureAS2;
+namespace PhpAS2;
 
 use Exception;
 
@@ -15,7 +15,7 @@ use Partner;
 
 /**
  *
- * @package  pureAS2/AS2
+ * @package  PhpAS2/AS2
  * @access   public
  */
 class AS2
@@ -55,7 +55,7 @@ class AS2
      * @throws Exception Partner was already added
      * @return Integer Partner ID
      */
-    public function addPartner(\pureAS2\Partner $partner)
+    public function addPartner(Partner $partner)
     {
         $newPartner = $partner->getName();
 

@@ -1,10 +1,10 @@
 <?php
 
-namespace pureAS2;
+namespace PhpAS2;
 
 /**
  *
- * @package  pureAS2/Connection
+ * @package  PhpAS2/Connection
  * @access   public
  */
 class Connection
